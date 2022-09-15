@@ -1,0 +1,12 @@
+query User {
+  user(id: "420") {
+    id
+    name
+  }
+}
+mutation UpdateUser {
+  userUpdate(id: "420") {
+    id
+    name
+  }
+}

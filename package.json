@@ -7,7 +7,7 @@
   "author": "Eddy Nguyen <ch@eddeee888.me>",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node src/index.ts"
+    "dev": "ts-node src/index.ts && yarn prettier -w ./src"
   },
   "dependencies": {},
   "devDependencies": {

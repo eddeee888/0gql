@@ -1,5 +1,5 @@
 import gql3, { gql as ttt, gql } from "graphql-tag";
-import React from "react";
+import React, { createElement } from "react";
 import { gql as gql2 } from "graphql-tag";
 
 export const USER_DOCUMENT = gql`

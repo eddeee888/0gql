@@ -1,53 +1,16 @@
 import { writeFile } from "fs/promises";
-import path from "path";
 import ts from "typescript";
+import type { IdentifierMeta } from "./types";
+import { changeExtension } from "./utils/changeExtension";
+import { parseGqlTagImportIdentifiers } from "./utils/parseGqlTagImportIdentifiers";
+import { trimBackTicks } from "./utils/trimBackTicks";
 
-const trimQuotes = (text: string): string => text.replace(/['"]+/g, "");
-const trimBackTicks = (text: string): string => text.replace(/[`]+/g, "");
-
-/**
- * Function to parse an ImportDeclaration node:
- *   - returns null if not targeted gql tag module
- *   - OR returns an array of possible identifiers that might be used as gql tag
- */
-const parseGqlTagImportIdentifiers = (
-  node: ts.ImportDeclaration,
-  source: ts.SourceFile
-): Record<string, true> | null => {
-  const module = trimQuotes(node.moduleSpecifier.getText(source));
-
-  // TODO: there are other modules to check. Maybe let users pass it in?
-  if (module !== "graphql-tag") {
-    return null;
-  }
-
-  const identifiers: Record<string, true> = {};
-
-  const defaultImportIdentifier = node.importClause?.name?.getText(source);
-  if (defaultImportIdentifier) {
-    identifiers[defaultImportIdentifier] = true;
-  }
-
-  node.importClause?.namedBindings?.forEachChild((cn) => {
-    if (ts.isImportSpecifier(cn)) {
-      if (
-        (!cn.propertyName && cn.name.getText(source) === "gql") ||
-        cn.propertyName?.getText(source) === "gql"
-      ) {
-        identifiers[cn.name.getText(source)] = true;
-      }
-    }
-  });
-
-  return identifiers;
-};
-
-function changeExtension(file: string, extension: string) {
-  const basename = path.basename(file, path.extname(file));
-  return path.join(path.dirname(file), basename + extension);
-}
-
-const files = ["./src/tests/simple/test.ts"];
+const files = [
+  "src/tests/simple/test.ts",
+  "./src/tests/fragments/main.ts",
+  "src/tests/fragments/fragment1.ts",
+  "src/tests/fragments/fragment2.ts",
+];
 const targetFiles: { filename: string; content: string }[] = [];
 const program = ts.createProgram(files, { allowJs: false });
 
@@ -59,33 +22,73 @@ files.forEach((file) => {
   }
 
   const targetFilename = changeExtension(file, ".graphql");
-  let gqlTagIdentifiers: Record<string, true> = {};
+  const indentifiers: {
+    gqlTags: Record<string, IdentifierMeta>;
+    others: Record<string, IdentifierMeta>;
+  } = {
+    gqlTags: {},
+    others: {},
+  };
+
   const graphqlTemplates: string[] = [];
 
   ts.forEachChild(sourceFile, (node: ts.Node) => {
-    console.log("*** entering node:", ts.SyntaxKind[node.kind]);
     // Check imports for gqlTagIdentifiers
     if (ts.isImportDeclaration(node)) {
       const identifiers = parseGqlTagImportIdentifiers(node, sourceFile);
-      if (identifiers) {
-        gqlTagIdentifiers = { ...gqlTagIdentifiers, ...identifiers };
-      }
+      Object.entries(identifiers).forEach(([key, moduleMeta]) => {
+        if (moduleMeta.isGqlTagModule) {
+          indentifiers.gqlTags[key] = moduleMeta;
+        } else {
+          indentifiers.others[key] = moduleMeta;
+        }
+      });
     }
 
     if (ts.isVariableStatement(node)) {
       node.declarationList.declarations.forEach((declaration) => {
+        // If found a tagged template expression
         if (
           declaration.initializer &&
           ts.isTaggedTemplateExpression(declaration.initializer)
         ) {
-          const tagIdentifier = declaration.initializer.tag.getText(sourceFile);
-          if (!gqlTagIdentifiers[tagIdentifier]) {
+          const { tag, template } = declaration.initializer;
+
+          const tagIdentifier = tag.getText(sourceFile);
+          // If tag is not part of gqlTags, do nothing
+          if (!indentifiers.gqlTags[tagIdentifier]) {
             return;
           }
-          const tagTemplate = trimBackTicks(
-            declaration.initializer.template.getText(sourceFile)
-          );
-          graphqlTemplates.push(tagTemplate);
+
+          if (ts.isNoSubstitutionTemplateLiteral(template)) {
+            // If no subscription, use full template
+            const tagTemplate = trimBackTicks(template.getText(sourceFile));
+            graphqlTemplates.push(tagTemplate);
+          } else if (ts.isTemplateExpression(template)) {
+            // If has subscription, ASSUME it's fragment. Replace usages and push template
+            const convertedGraphqlImportLines: string[] = []; // ['#import "./a/b.graphql"','#import "./c/d.graphql"']
+            const substitutionsToReplace: string[] = []; // ["${FRAGMENT_1}","${FRAGMENT_1}"]
+
+            template.templateSpans.forEach((span) => {
+              const identifier = span.expression.getText(sourceFile);
+              if (indentifiers.others[identifier]) {
+                convertedGraphqlImportLines.push(
+                  `#import "${indentifiers.others[identifier].module}"`
+                );
+                substitutionsToReplace.push("${" + identifier + "}");
+              }
+            });
+
+            const originalTagTemplate = trimBackTicks(
+              template.getText(sourceFile)
+            );
+            const noSubstitutionTemplate = substitutionsToReplace.reduce(
+              (result, substitution) => result.replace(substitution, ""),
+              originalTagTemplate
+            );
+            graphqlTemplates.push(`${convertedGraphqlImportLines.join("\n")}
+            ${noSubstitutionTemplate}`);
+          }
         }
       });
     }
