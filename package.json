@@ -6,6 +6,9 @@
   "repository": "git@github.com:eddeee888/nogql.git",
   "author": "Eddy Nguyen <ch@eddeee888.me>",
   "license": "MIT",
+  "scripts": {
+    "dev": "ts-node src/index.ts"
+  },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "16.11.59",
