@@ -1,13 +1,23 @@
 {
-  "name": "nogql",
+  "name": "0gql",
   "version": "0.0.0",
   "description": "Migrate from gql tag",
-  "main": "index.js",
   "repository": "git@github.com:eddeee888/nogql.git",
   "author": "Eddy Nguyen <ch@eddeee888.me>",
   "license": "MIT",
+  "main": "dist/bin.js",
+  "typings": "dist/bin.d.ts",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "*.md"
+  ],
+  "bin": {
+    "0gql": "./dist/bin.js"
+  },
   "scripts": {
-    "dev": "ts-node src/index.ts && yarn prettier -w ./src"
+    "build": "tsc",
+    "dev": "yarn ts-node ./src/bin.ts \"src/tests/**/*.ts*\" && yarn prettier -w src/tests"
   },
   "dependencies": {
     "commander": "9.4.0",
