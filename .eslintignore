@@ -20,3 +20,5 @@ node_modules/
 .yarn-integrity
 
 .eslintrc.js
+
+dist
