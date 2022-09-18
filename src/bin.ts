@@ -12,14 +12,18 @@ program
         process.exit(1);
       }
 
-      console.log(`Files from "${filePattern}" pattern:`);
+      console.log(`"${filePattern}":`);
       files.map((file) => console.log(file));
       console.log("");
 
       nogql(files)
         .then((files) => {
-          console.log("Generated files:");
-          files.forEach((file) => console.log(file.filename));
+          if (files.length > 0) {
+            console.log("Generated files:");
+            files.forEach((file) => console.log(file.filename));
+          } else {
+            console.log("No generated files.");
+          }
           process.exit(0);
         })
         .catch((e) => {
