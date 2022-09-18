@@ -5,8 +5,13 @@ import { changeExtension } from "./utils/changeExtension";
 import { parseGqlTagImportIdentifiers } from "./utils/parseGqlTagImportIdentifiers";
 import { trimBackTicks } from "./utils/trimBackTicks";
 
-export const nogql = async (files: string[]): Promise<void> => {
-  const targetFiles: { filename: string; content: string }[] = [];
+interface GeneratedFile {
+  filename: string;
+  content: string;
+}
+
+export const nogql = async (files: string[]): Promise<GeneratedFile[]> => {
+  const targetFiles: GeneratedFile[] = [];
   const program = ts.createProgram(files, { allowJs: false });
 
   files.forEach((file) => {
@@ -97,4 +102,6 @@ export const nogql = async (files: string[]): Promise<void> => {
   await Promise.all(
     targetFiles.map((file) => writeFile(file.filename, file.content))
   );
+
+  return targetFiles;
 };
