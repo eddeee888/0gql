@@ -12,7 +12,7 @@ program
         process.exit(1);
       }
 
-      console.log("Input files:");
+      console.log(`Files from "${filePattern}" pattern:`);
       files.map((file) => console.log(file));
       console.log("");
 

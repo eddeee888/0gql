@@ -1,4 +1,6 @@
 import { writeFile } from "fs/promises";
+import fs from "fs";
+import path from "path";
 import ts from "typescript";
 import type { IdentifierMeta } from "./types";
 import { changeExtension } from "./utils/changeExtension";
@@ -10,7 +12,24 @@ interface GeneratedFile {
   content: string;
 }
 
-export const nogql = async (files: string[]): Promise<GeneratedFile[]> => {
+export const nogql = async (input: string[]): Promise<GeneratedFile[]> => {
+  const files = input.filter((fileOrFolder) => {
+    if (fs.lstatSync(fileOrFolder).isDirectory()) {
+      return false;
+    }
+
+    const acceptedExtensions = [".ts", ".tsx"];
+    if (!acceptedExtensions.some((ext) => ext === path.extname(fileOrFolder))) {
+      return false;
+    }
+
+    return true;
+  });
+
+  console.log("Input files:");
+  files.map((file) => console.log(file));
+  console.log("");
+
   const targetFiles: GeneratedFile[] = [];
   const program = ts.createProgram(files, { allowJs: false });
 
