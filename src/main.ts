@@ -12,7 +12,14 @@ interface GeneratedFile {
   content: string;
 }
 
-export const main = async (input: string[]): Promise<GeneratedFile[]> => {
+interface ParsedOptions {
+  targetExtension: string;
+}
+
+export const main = async (
+  input: string[],
+  options: ParsedOptions
+): Promise<GeneratedFile[]> => {
   const files = input.filter((fileOrFolder) => {
     if (fs.lstatSync(fileOrFolder).isDirectory()) {
       return false;
@@ -40,7 +47,7 @@ export const main = async (input: string[]): Promise<GeneratedFile[]> => {
       throw new Error("Unable to get source file");
     }
 
-    const targetFilename = changeExtension(file, ".graphql");
+    const targetFilename = changeExtension(file, options.targetExtension);
     const indentifiers: {
       gqlTags: Record<string, IdentifierMeta>;
       others: Record<string, IdentifierMeta>;
