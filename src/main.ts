@@ -12,7 +12,7 @@ interface GeneratedFile {
   content: string;
 }
 
-export const nogql = async (input: string[]): Promise<GeneratedFile[]> => {
+export const main = async (input: string[]): Promise<GeneratedFile[]> => {
   const files = input.filter((fileOrFolder) => {
     if (fs.lstatSync(fileOrFolder).isDirectory()) {
       return false;

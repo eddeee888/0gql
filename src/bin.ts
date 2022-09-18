@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { program } from "commander";
 import { glob } from "glob";
-import { nogql } from "./nogql";
+import { main } from "./main";
 
 program
   .version("0.0.1")
@@ -17,7 +17,7 @@ program
       files.map((file) => console.log(file));
       console.log("");
 
-      nogql(files)
+      main(files)
         .then((files) => {
           if (files.length > 0) {
             console.log("Generated files:");
