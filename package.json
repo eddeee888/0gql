@@ -10,9 +10,11 @@
     "dev": "ts-node src/index.ts && yarn prettier -w ./src"
   },
   "dependencies": {
-    "commander": "9.4.0"
+    "commander": "9.4.0",
+    "glob": "8.0.3"
   },
   "devDependencies": {
+    "@types/glob": "8.0.0",
     "@types/node": "16.11.59",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
