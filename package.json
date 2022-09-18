@@ -1,6 +1,6 @@
 {
   "name": "0gql",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Migrate from gql tag",
   "repository": "git@github.com:eddeee888/nogql.git",
   "author": "Eddy Nguyen <ch@eddeee888.me>",
@@ -9,7 +9,8 @@
   "typings": "dist/bin.d.ts",
   "files": [
     "dist/**/*.js",
-    "dist/**/*.d.ts"
+    "dist/**/*.d.ts",
+    "*.md"
   ],
   "bin": {
     "0gql": "./dist/bin.js"
