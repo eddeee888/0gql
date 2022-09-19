@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches-ignore:
+      - "master"
+
+env:
+  node-version: "16.14"
+
+jobs:
+  precheck:
+    name: Check jobs to run
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.10.0
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.node-version }}
+          cache: yarn
+          cache-dependency-path: "**/yarn.lock"
+
+      - name: Install deps
+        run: yarn install --prefer-offline
+
+      - name: Build
+        run: yarn build
+
+      - name: Test
+        run: yarn test
