@@ -17,13 +17,16 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "yarn ts-node ./src/bin.ts \"src/tests/**/*.ts*\" && yarn prettier -w src/tests"
+    "dev": "ops/dev.sh",
+    "test": "ops/dev.sh && ops/assert.sh",
+    "release": "yarn build && yarn changeset publish"
   },
   "dependencies": {
     "commander": "9.4.0",
     "glob": "8.0.3"
   },
   "devDependencies": {
+    "@changesets/cli": "2.24.4",
     "@types/glob": "8.0.0",
     "@types/node": "16.11.59",
     "@typescript-eslint/eslint-plugin": "5.37.0",
