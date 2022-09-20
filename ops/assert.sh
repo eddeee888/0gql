@@ -2,7 +2,7 @@
 
 set -eu
 
-output_pattern=src/tests/**/*.graphql*
+output_pattern=src/tests/**/*
 
 # Assert committed files are the same
 echo "=> Checking if commited files matches generated sample..."
