@@ -11,6 +11,11 @@ program
     "extension of the generated file/s",
     ".graphql"
   )
+  .option(
+    "-m, --modules <gql tag module/s>",
+    "Module/s where gql tag could be imported from. Comma separated.",
+    "graphql-tag"
+  )
   .argument("<file pattern>")
   .action((filePattern, options) => {
     glob(filePattern, (globErr, files) => {
@@ -23,7 +28,10 @@ program
       files.map((file) => console.log(file));
       console.log("");
 
-      main(files, { targetExtension: options.extension })
+      main(files, {
+        targetExtension: options.extension,
+        gqlTagModules: options.modules.split(","),
+      })
         .then((files) => {
           if (files.length > 0) {
             console.log("Generated files:");
