@@ -1,5 +1,11 @@
 # 0gql
 
+## 0.0.6
+
+### Patch Changes
+
+- f4892f8: Add typescript to dep
+
 ## 0.0.5
 
 ### Patch Changes
