@@ -13,9 +13,10 @@ program
   )
   .option(
     "-m, --modules <gql tag module/s>",
-    "Module/s where gql tag could be imported from. Comma separated.",
+    "module/s where gql tag are imported from. Comma separated",
     "graphql-tag"
   )
+  .option("-r, --remove", "remove original gql tag usage")
   .argument("<file pattern>")
   .action((filePattern, options) => {
     glob(filePattern, (globErr, files) => {
@@ -31,16 +32,9 @@ program
       main(files, {
         targetExtension: options.extension,
         gqlTagModules: options.modules.split(","),
+        shouldRemoveOriginalUsage: Boolean(options.remove),
       })
-        .then((files) => {
-          if (files.length > 0) {
-            console.log("Generated files:");
-            files.forEach((file) => console.log(file.filename));
-          } else {
-            console.log("No generated files.");
-          }
-          process.exit(0);
-        })
+        .then(() => process.exit(0))
         .catch((e) => {
           console.error(e);
           process.exit(1);
