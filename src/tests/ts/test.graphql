@@ -10,3 +10,13 @@ mutation UpdateUser {
     name
   }
 }
+query User {
+  user(id: "500") {
+    id
+  }
+}
+query User {
+  user(id: "501") {
+    id
+  }
+}
