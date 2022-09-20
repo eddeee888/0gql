@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "commander": "^9.4.0",
-    "glob": "^8.0.3"
+    "glob": "^8.0.3",
+    "typescript": "^4.8.3"
   },
   "devDependencies": {
     "@changesets/cli": "2.24.4",
@@ -33,7 +34,6 @@
     "@typescript-eslint/parser": "5.38.0",
     "eslint": "8.23.1",
     "prettier": "2.7.1",
-    "ts-node": "10.9.1",
-    "typescript": "4.8.3"
+    "ts-node": "10.9.1"
   }
 }
