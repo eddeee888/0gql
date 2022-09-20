@@ -7,7 +7,7 @@ Codemod tool to detect gql tag templates and extract them to separate files
 By default, this codemod finds all `gql` tag usage from `graphql-tag` imports of a given pattern. Then, it analyses and puts GraphQL content and fragments into a separate `.graphql` file.
 
 ```bash
-# This will codemod all .ts and tsx files under path/to/files that import and use gql tag
+# This codemods all .ts and .tsx files under path/to/files that import and use gql tag
 $ npx 0gql "path/to/files/*.ts*"
 ```
 
