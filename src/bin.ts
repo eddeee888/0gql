@@ -5,7 +5,7 @@ import { main } from "./main";
 
 program
   .name("0gql")
-  .version("0.0.1")
+  .version("0.0.7")
   .option(
     "-e, --extension <target extension>",
     "extension of the generated file/s",
@@ -13,9 +13,10 @@ program
   )
   .option(
     "-m, --modules <gql tag module/s>",
-    "Module/s where gql tag could be imported from. Comma separated.",
+    "module/s where gql tag are imported from. Comma separated",
     "graphql-tag"
   )
+  .option("-r, --remove", "remove original gql tag usage")
   .argument("<file pattern>")
   .action((filePattern, options) => {
     glob(filePattern, (globErr, files) => {
@@ -24,23 +25,16 @@ program
         process.exit(1);
       }
 
-      console.log(`"${filePattern}":`);
+      console.log(`🔎 "${filePattern}":`);
       files.map((file) => console.log(file));
       console.log("");
 
       main(files, {
         targetExtension: options.extension,
         gqlTagModules: options.modules.split(","),
+        shouldRemoveOriginalUsage: Boolean(options.remove),
       })
-        .then((files) => {
-          if (files.length > 0) {
-            console.log("Generated files:");
-            files.forEach((file) => console.log(file.filename));
-          } else {
-            console.log("No generated files.");
-          }
-          process.exit(0);
-        })
+        .then(() => process.exit(0))
         .catch((e) => {
           console.error(e);
           process.exit(1);

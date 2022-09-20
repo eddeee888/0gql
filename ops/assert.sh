@@ -2,17 +2,17 @@
 
 set -eu
 
-output_pattern=src/tests/**/*.graphql*
+output_pattern=src/tests/**/*
 
 # Assert committed files are the same
-echo "=> Checking if commited files matches generated sample..."
+echo -e "\n=> Checking if actual output matches commited files..."
 if [[ `git status --porcelain $output_pattern` ]]; then
-  echo "x> Error!"
-  echo "=> Following generated files does not have expected result:"
+  echo -e "\nx> Error!\n"
+  echo "=> Following files do not have expected result:"
   git --no-pager diff HEAD --color -- $output_pattern
-  echo "=> Run 'yarn dev', commit the changes and try again."
+  echo "=> Run 'yarn dev', commit the changes and try again.\n"
   exit 1
 fi
 
-echo "=> No errors."
+echo -e "=> No errors.\n"
 exit 0
