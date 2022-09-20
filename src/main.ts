@@ -35,7 +35,9 @@ export const main = async (
     return true;
   });
 
-  files.length ? console.log("Input files:") : console.log("No input files.");
+  files.length
+    ? console.log("➡️ Input files:")
+    : console.log("➡️ No input files.");
   files.map((file) => console.log(file));
   console.log("");
 
@@ -181,17 +183,17 @@ export const main = async (
   ]);
 
   if (filesToGenerate.length > 0) {
-    console.log("Generated files:");
+    console.log("✨ Generated files:");
     filesToGenerate.forEach((file) => console.log(file.filename));
   } else {
-    console.log("No generated files.");
+    console.log("✨ No generated files.");
   }
   console.log("");
 
   if (filesToUpdate.length > 0) {
-    console.log("Updated files:");
+    console.log("✨ Updated files:");
     filesToUpdate.forEach((file) => console.log(file.filename));
   } else {
-    console.log("No updated files.");
+    console.log("✨ No updated files.");
   }
 };

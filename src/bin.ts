@@ -25,7 +25,7 @@ program
         process.exit(1);
       }
 
-      console.log(`"${filePattern}":`);
+      console.log(`🔎 "${filePattern}":`);
       files.map((file) => console.log(file));
       console.log("");
 
