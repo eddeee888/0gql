@@ -1,6 +1,6 @@
 {
   "name": "0gql",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Migrate from gql tag",
   "repository": "git@github.com:eddeee888/nogql.git",
   "author": "Eddy Nguyen <ch@eddeee888.me>",
