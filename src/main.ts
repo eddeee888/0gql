@@ -36,8 +36,8 @@ export const main = async (
   });
 
   files.length
-    ? console.log("➡️ Input files:")
-    : console.log("➡️ No input files.");
+    ? console.log("🧐 Input files:")
+    : console.log("🧐 No input files.");
   files.map((file) => console.log(file));
   console.log("");
 

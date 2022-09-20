@@ -20,7 +20,8 @@ yarn ts-node ./src/bin.ts "src/tests/multiple-gql-tag-modules/*.ts" --modules gr
 # Generated files to have different extension
 yarn ts-node ./src/bin.ts "src/tests/graphqls/*.ts" --extension ".graphqls"
 
+# Use --remove option to remove original tag usage
 cp src/tests/remove-original-tag/test.before.ts src/tests/remove-original-tag/test.after.ts
-yarn ts-node ./src/bin.ts "src/tests/remove-original-tag/test.after.ts" -r
+yarn ts-node ./src/bin.ts "src/tests/remove-original-tag/test.after.ts" --remove
 
 yarn prettier -w src/tests

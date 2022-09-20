@@ -5,7 +5,7 @@ import { main } from "./main";
 
 program
   .name("0gql")
-  .version("0.0.1")
+  .version("0.0.7")
   .option(
     "-e, --extension <target extension>",
     "extension of the generated file/s",
