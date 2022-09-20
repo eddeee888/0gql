@@ -22,8 +22,8 @@
     "release": "yarn build && yarn changeset publish"
   },
   "dependencies": {
-    "commander": "9.4.0",
-    "glob": "8.0.3"
+    "commander": "^9.4.0",
+    "glob": "^8.0.3"
   },
   "devDependencies": {
     "@changesets/cli": "2.24.4",
