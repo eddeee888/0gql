@@ -1,0 +1,12 @@
+query Test1 {
+  car {
+    id
+    make
+  }
+}
+mutation Test3 {
+  deleteThing(id: "420") {
+    id
+    deletedAt
+  }
+}

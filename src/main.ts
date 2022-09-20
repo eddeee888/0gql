@@ -14,6 +14,7 @@ interface GeneratedFile {
 
 interface ParsedOptions {
   targetExtension: string;
+  gqlTagModules: string[];
 }
 
 export const main = async (
@@ -61,7 +62,11 @@ export const main = async (
     ts.forEachChild(sourceFile, (node: ts.Node) => {
       // Check imports for gqlTagIdentifiers
       if (ts.isImportDeclaration(node)) {
-        const identifiers = parseGqlTagImportIdentifiers(node, sourceFile);
+        const identifiers = parseGqlTagImportIdentifiers({
+          node,
+          source: sourceFile,
+          gqlTagModules: options.gqlTagModules,
+        });
         Object.entries(identifiers).forEach(([key, moduleMeta]) => {
           if (moduleMeta.isGqlTagModule) {
             indentifiers.gqlTags[key] = moduleMeta;

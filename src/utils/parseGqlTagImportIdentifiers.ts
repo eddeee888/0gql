@@ -2,18 +2,25 @@ import ts from "typescript";
 import { IdentifierMeta } from "../types";
 import { trimQuotes } from "./trimQuotes";
 
+interface ParseGqlTagImportIdentifiersParams {
+  node: ts.ImportDeclaration;
+  source: ts.SourceFile;
+  gqlTagModules: string[];
+}
+
 /**
  * Function to parse an ImportDeclaration node,
  * returns an array of identifiers that might or might not be used as gql tag
  */
-export const parseGqlTagImportIdentifiers = (
-  node: ts.ImportDeclaration,
-  source: ts.SourceFile
-): Record<string, IdentifierMeta> => {
+export const parseGqlTagImportIdentifiers = ({
+  node,
+  source,
+  gqlTagModules,
+}: ParseGqlTagImportIdentifiersParams): Record<string, IdentifierMeta> => {
   const module = trimQuotes(node.moduleSpecifier.getText(source));
 
   // TODO: there are other modules to check. Maybe let users pass it in?
-  const isGqlTagModule = module === "graphql-tag";
+  const isGqlTagModule = gqlTagModules.includes(module);
 
   const identifiers: Record<string, IdentifierMeta> = {};
 
