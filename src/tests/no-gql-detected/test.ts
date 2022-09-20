@@ -1,6 +1,7 @@
-import { gql } from "@not/gql-tag";
+import gql from "graphql-tag";
+import { gql as gql2 } from "@not/gql-tag";
 
-export const TEST = gql`
+export const TEST = gql2`
   query Test {
     car {
       id
