@@ -124,10 +124,15 @@ export const main = async (
         });
       }
     });
-    targetFiles.push({
-      filename: targetFilename,
-      content: graphqlTemplates.join(),
-    });
+
+    const fileContent = graphqlTemplates.join();
+
+    if (fileContent) {
+      targetFiles.push({
+        filename: targetFilename,
+        content: fileContent,
+      });
+    }
   });
 
   await Promise.all(
