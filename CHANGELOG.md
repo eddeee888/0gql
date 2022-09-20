@@ -1,5 +1,11 @@
 # 0gql
 
+## 0.0.5
+
+### Patch Changes
+
+- 16a791e: Relax deps
+
 ## 0.0.4
 
 ### Patch Changes
