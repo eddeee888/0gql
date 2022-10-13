@@ -1,11 +1,18 @@
 import ts from "typescript";
-import { IdentifierMeta } from "../types";
 import { trimQuotes } from "./trimQuotes";
 
-interface ParseGqlTagImportIdentifiersParams {
+interface ImportIdentifierMeta {
+  moduleName: string;
+}
+
+export interface ParseGqlTagImportIdentifiersParams {
   node: ts.ImportDeclaration;
   source: ts.SourceFile;
   gqlTagModules: string[];
+  importIdentifiers: {
+    gqlTags: Record<string, ImportIdentifierMeta>;
+    others: Record<string, ImportIdentifierMeta>; // `others` are used to keep track of non-gqlTag imports which could potentially be fragments
+  };
 }
 
 /**
@@ -16,20 +23,18 @@ export const parseGqlTagImportIdentifiers = ({
   node,
   source,
   gqlTagModules,
-}: ParseGqlTagImportIdentifiersParams): Record<string, IdentifierMeta> => {
-  const module = trimQuotes(node.moduleSpecifier.getText(source));
+  importIdentifiers,
+}: ParseGqlTagImportIdentifiersParams): void => {
+  const moduleName = trimQuotes(node.moduleSpecifier.getText(source));
 
-  // TODO: there are other modules to check. Maybe let users pass it in?
-  const isGqlTagModule = gqlTagModules.includes(module);
-
-  const identifiers: Record<string, IdentifierMeta> = {};
+  const isGqlTagModule = gqlTagModules.includes(moduleName);
 
   const defaultImportIdentifier = node.importClause?.name?.getText(source);
   if (defaultImportIdentifier) {
-    identifiers[defaultImportIdentifier] = {
-      isGqlTag: isGqlTagModule,
-      isGqlTagModule,
-      module,
+    const key: keyof ParseGqlTagImportIdentifiersParams["importIdentifiers"] =
+      isGqlTagModule ? "gqlTags" : "others";
+    importIdentifiers[key][defaultImportIdentifier] = {
+      moduleName,
     };
   }
 
@@ -39,13 +44,12 @@ export const parseGqlTagImportIdentifiers = ({
         (!cn.propertyName && cn.name.getText(source) === "gql") ||
         cn.propertyName?.getText(source) === "gql";
 
-      identifiers[cn.name.getText(source)] = {
-        isGqlTag,
-        isGqlTagModule,
-        module,
+      const key: keyof ParseGqlTagImportIdentifiersParams["importIdentifiers"] =
+        isGqlTag && isGqlTagModule ? "gqlTags" : "others";
+
+      importIdentifiers[key][cn.name.getText(source)] = {
+        moduleName,
       };
     }
   });
-
-  return identifiers;
 };
