@@ -1,5 +1,5 @@
-#import "./fragment1"
-#import "./fragment2"
+#import "./fragment1.graphql"
+#import "./fragment2.graphql"
 
 query User {
   user(id: "420") {

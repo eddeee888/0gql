@@ -106,7 +106,7 @@ export const main = async (
                 const identifier = span.expression.getText(sourceFile);
                 if (importIdentifiers.others[identifier]) {
                   convertedGraphqlImportLines.push(
-                    `#import "${importIdentifiers.others[identifier].moduleName}"`
+                    `#import "${importIdentifiers.others[identifier].moduleName}.graphql"`
                   );
                   substitutionsToReplace.push("${" + identifier + "}");
                 }
