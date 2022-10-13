@@ -54,9 +54,9 @@ export const main = async (
     }
 
     const targetFilename = changeExtension(file, options.targetExtension);
-    const indentifiers: {
+    const importIndentifiers: {
       gqlTags: Record<string, IdentifierMeta>;
-      others: Record<string, IdentifierMeta>;
+      others: Record<string, IdentifierMeta>; // `others` are used to keep track of non-gqlTag imports which could potentially be fragments
     } = {
       gqlTags: {},
       others: {},
@@ -75,9 +75,9 @@ export const main = async (
         });
         Object.entries(identifiers).forEach(([key, moduleMeta]) => {
           if (moduleMeta.isGqlTagModule) {
-            indentifiers.gqlTags[key] = moduleMeta;
+            importIndentifiers.gqlTags[key] = moduleMeta;
           } else {
-            indentifiers.others[key] = moduleMeta;
+            importIndentifiers.others[key] = moduleMeta;
           }
         });
       }
@@ -93,7 +93,7 @@ export const main = async (
 
             const tagIdentifier = tag.getText(sourceFile);
             // If tag is not part of gqlTags, do nothing
-            if (!indentifiers.gqlTags[tagIdentifier]) {
+            if (!importIndentifiers.gqlTags[tagIdentifier]) {
               return;
             }
 
@@ -110,9 +110,9 @@ export const main = async (
 
               template.templateSpans.forEach((span) => {
                 const identifier = span.expression.getText(sourceFile);
-                if (indentifiers.others[identifier]) {
+                if (importIndentifiers.others[identifier]) {
                   convertedGraphqlImportLines.push(
-                    `#import "${indentifiers.others[identifier].module}"`
+                    `#import "${importIndentifiers.others[identifier].module}"`
                   );
                   substitutionsToReplace.push("${" + identifier + "}");
                 }

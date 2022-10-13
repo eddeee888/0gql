@@ -19,7 +19,6 @@ export const parseGqlTagImportIdentifiers = ({
 }: ParseGqlTagImportIdentifiersParams): Record<string, IdentifierMeta> => {
   const module = trimQuotes(node.moduleSpecifier.getText(source));
 
-  // TODO: there are other modules to check. Maybe let users pass it in?
   const isGqlTagModule = gqlTagModules.includes(module);
 
   const identifiers: Record<string, IdentifierMeta> = {};

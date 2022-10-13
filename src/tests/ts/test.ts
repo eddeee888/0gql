@@ -35,3 +35,11 @@ export const TEST4 = gql2`
     }
   }
 `;
+
+export const TEST5 = createElement`
+  query User {
+    user(id: "501") {
+      id
+    }
+  }
+`;
