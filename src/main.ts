@@ -2,9 +2,11 @@ import { writeFile } from "fs/promises";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
-import type { IdentifierMeta } from "./types";
 import { changeExtension } from "./utils/changeExtension";
-import { parseGqlTagImportIdentifiers } from "./utils/parseGqlTagImportIdentifiers";
+import {
+  parseGqlTagImportIdentifiers,
+  ParseGqlTagImportIdentifiersParams,
+} from "./utils/parseGqlTagImportIdentifiers";
 import { trimBackTicks } from "./utils/trimBackTicks";
 
 interface FileToMutate {
@@ -54,13 +56,11 @@ export const main = async (
     }
 
     const targetFilename = changeExtension(file, options.targetExtension);
-    const importIndentifiers: {
-      gqlTags: Record<string, IdentifierMeta>;
-      others: Record<string, IdentifierMeta>; // `others` are used to keep track of non-gqlTag imports which could potentially be fragments
-    } = {
-      gqlTags: {},
-      others: {},
-    };
+    const importIdentifiers: ParseGqlTagImportIdentifiersParams["importIdentifiers"] =
+      {
+        gqlTags: {},
+        others: {},
+      };
 
     const nodesToRemove: ts.VariableStatement[] = [];
     const graphqlTemplates: string[] = [];
@@ -68,17 +68,11 @@ export const main = async (
     ts.forEachChild(sourceFile, (node: ts.Node) => {
       // Check imports for gqlTagIdentifiers
       if (ts.isImportDeclaration(node)) {
-        const identifiers = parseGqlTagImportIdentifiers({
+        parseGqlTagImportIdentifiers({
           node,
           source: sourceFile,
           gqlTagModules: options.gqlTagModules,
-        });
-        Object.entries(identifiers).forEach(([key, moduleMeta]) => {
-          if (moduleMeta.isGqlTagModule) {
-            importIndentifiers.gqlTags[key] = moduleMeta;
-          } else {
-            importIndentifiers.others[key] = moduleMeta;
-          }
+          importIdentifiers,
         });
       }
 
@@ -93,7 +87,7 @@ export const main = async (
 
             const tagIdentifier = tag.getText(sourceFile);
             // If tag is not part of gqlTags, do nothing
-            if (!importIndentifiers.gqlTags[tagIdentifier]) {
+            if (!importIdentifiers.gqlTags[tagIdentifier]) {
               return;
             }
 
@@ -110,9 +104,9 @@ export const main = async (
 
               template.templateSpans.forEach((span) => {
                 const identifier = span.expression.getText(sourceFile);
-                if (importIndentifiers.others[identifier]) {
+                if (importIdentifiers.others[identifier]) {
                   convertedGraphqlImportLines.push(
-                    `#import "${importIndentifiers.others[identifier].module}"`
+                    `#import "${importIdentifiers.others[identifier].moduleName}"`
                   );
                   substitutionsToReplace.push("${" + identifier + "}");
                 }
