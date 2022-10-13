@@ -1,5 +1,12 @@
 # 0gql
 
+## 0.0.8
+
+### Patch Changes
+
+- 74851a2: Fix non-gql imports from gql modules being wrongly recognised as gql tags
+- 74851a2: Fix missing extension in import lines when handling fragment
+
 ## 0.0.7
 
 ### Patch Changes
