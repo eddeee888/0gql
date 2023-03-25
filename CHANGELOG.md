@@ -1,5 +1,11 @@
 # 0gql
 
+## 0.0.9
+
+### Patch Changes
+
+- 110603c: Fix issue where gql import declarations are not removed when --remove flag is used
+
 ## 0.0.8
 
 ### Patch Changes
