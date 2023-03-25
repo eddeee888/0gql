@@ -62,7 +62,7 @@ export const main = async (
         others: {},
       };
 
-    const nodesToRemove: ts.VariableStatement[] = [];
+    const nodesToRemove: (ts.VariableStatement | ts.ImportDeclaration)[] = [];
     const graphqlTemplates: string[] = [];
 
     ts.forEachChild(sourceFile, (node: ts.Node) => {
@@ -136,6 +136,12 @@ export const main = async (
       });
     }
 
+    // FIXME: assume only gql tags are imported on each import declaration.
+    // This assumption means we can remove them all import declarations related to gql tags, even if they import something else.
+    Object.values(importIdentifiers.gqlTags).forEach(
+      ({ importDeclarationNode }) => nodesToRemove.push(importDeclarationNode)
+    );
+
     if (options.shouldRemoveOriginalUsage && nodesToRemove.length > 0) {
       // Transformer to remove variable declaration nodes if matches nodesToRemove
       // How transformer work: https://github.com/madou/typescript-transformer-handbook
@@ -145,7 +151,7 @@ export const main = async (
             // If found a node that's at the same position as the a node to remove, assume
             // they are the same and remove them ( by returning undefined )
             if (
-              ts.isVariableStatement(node) &&
+              (ts.isVariableStatement(node) || ts.isImportDeclaration(node)) &&
               nodesToRemove.find(
                 (nodeToRemove) =>
                   nodeToRemove.pos === node.pos && nodeToRemove.end === node.end
