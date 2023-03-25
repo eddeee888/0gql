@@ -3,6 +3,7 @@ import { trimQuotes } from "./trimQuotes";
 
 interface ImportIdentifierMeta {
   moduleName: string;
+  importDeclarationNode: ts.ImportDeclaration;
 }
 
 export interface ParseGqlTagImportIdentifiersParams {
@@ -35,6 +36,7 @@ export const parseGqlTagImportIdentifiers = ({
       isGqlTagModule ? "gqlTags" : "others";
     importIdentifiers[key][defaultImportIdentifier] = {
       moduleName,
+      importDeclarationNode: node,
     };
   }
 
@@ -49,6 +51,7 @@ export const parseGqlTagImportIdentifiers = ({
 
       importIdentifiers[key][cn.name.getText(source)] = {
         moduleName,
+        importDeclarationNode: node,
       };
     }
   });
