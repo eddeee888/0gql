@@ -19,7 +19,8 @@
     "build": "tsc",
     "dev": "ops/dev.sh",
     "test": "ops/dev.sh && ops/assert.sh",
-    "release": "yarn build && yarn changeset publish"
+    "release": "yarn build && yarn changeset publish",
+    "cli": "ts-node src/bin.ts"
   },
   "dependencies": {
     "commander": "^10.0.0",
