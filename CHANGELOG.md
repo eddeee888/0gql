@@ -1,5 +1,13 @@
 # 0gql
 
+## 0.0.10
+
+### Patch Changes
+
+- b42c152: Add handling for default exports of gql tags.
+
+  Improve backtick handling - only start and end backticks are removed, and escaped backticks in the middle of a template are unescaped.
+
 ## 0.0.9
 
 ### Patch Changes
