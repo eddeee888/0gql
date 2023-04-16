@@ -1,0 +1,5 @@
+query User {
+  user(id: "600") {
+    id
+  }
+}

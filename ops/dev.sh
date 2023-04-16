@@ -24,4 +24,7 @@ yarn ts-node ./src/bin.ts "src/tests/graphqls/*.ts" --extension ".graphqls"
 cp src/tests/remove-original-tag/test.before.ts src/tests/remove-original-tag/test.after.ts
 yarn ts-node ./src/bin.ts "src/tests/remove-original-tag/test.after.ts" --remove
 
+cp src/tests/remove-original-tag-default-export/test.before.ts src/tests/remove-original-tag-default-export/test.after.ts
+yarn ts-node ./src/bin.ts "src/tests/remove-original-tag-default-export/test.after.ts" --remove
+
 yarn prettier -w src/tests

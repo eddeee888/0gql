@@ -8,6 +8,7 @@ import {
   ParseGqlTagImportIdentifiersParams,
 } from "./utils/parseGqlTagImportIdentifiers";
 import { trimBackTicks } from "./utils/trimBackTicks";
+import { unescapeBackTicks } from "./utils/unescapeBackTicks";
 
 interface FileToMutate {
   filename: string;
@@ -62,8 +63,54 @@ export const main = async (
         others: {},
       };
 
-    const nodesToRemove: (ts.VariableStatement | ts.ImportDeclaration)[] = [];
+    const nodesToRemove: ts.Node[] = [];
     const graphqlTemplates: string[] = [];
+
+    function handleExpression(node: ts.Node, expression: ts.Expression) {
+      if (ts.isTaggedTemplateExpression(expression)) {
+        const { tag, template } = expression;
+
+        const tagIdentifier = tag.getText(sourceFile);
+        // If tag is not part of gqlTags, do nothing
+        if (!importIdentifiers.gqlTags[tagIdentifier]) {
+          return;
+        }
+
+        if (ts.isNoSubstitutionTemplateLiteral(template)) {
+          nodesToRemove.push(node);
+          // If no subscription, use full template
+          const tagTemplate = unescapeBackTicks(
+            trimBackTicks(template.getText(sourceFile))
+          );
+          graphqlTemplates.push(tagTemplate);
+        } else if (ts.isTemplateExpression(template)) {
+          nodesToRemove.push(node);
+          // If has subscription, ASSUME it's fragment. Replace usages and push template
+          const convertedGraphqlImportLines: string[] = []; // ['#import "./a/b.graphql"','#import "./c/d.graphql"']
+          const substitutionsToReplace: string[] = []; // ["${FRAGMENT_1}","${FRAGMENT_1}"]
+
+          template.templateSpans.forEach((span) => {
+            const identifier = span.expression.getText(sourceFile);
+            if (importIdentifiers.others[identifier]) {
+              convertedGraphqlImportLines.push(
+                `#import "${importIdentifiers.others[identifier].moduleName}.graphql"`
+              );
+              substitutionsToReplace.push("${" + identifier + "}");
+            }
+          });
+
+          const originalTagTemplate = unescapeBackTicks(
+            trimBackTicks(template.getText(sourceFile))
+          );
+          const noSubstitutionTemplate = substitutionsToReplace.reduce(
+            (result, substitution) => result.replace(substitution, ""),
+            originalTagTemplate
+          );
+          graphqlTemplates.push(`${convertedGraphqlImportLines.join("\n")}
+        ${noSubstitutionTemplate}`);
+        }
+      }
+    }
 
     ts.forEachChild(sourceFile, (node: ts.Node) => {
       // Check imports for gqlTagIdentifiers
@@ -76,52 +123,12 @@ export const main = async (
         });
       }
 
-      if (ts.isVariableStatement(node)) {
+      if (ts.isExportAssignment(node)) {
+        handleExpression(node, node.expression);
+      } else if (ts.isVariableStatement(node)) {
         node.declarationList.declarations.forEach((declaration) => {
-          // If found a tagged template expression
-          if (
-            declaration.initializer &&
-            ts.isTaggedTemplateExpression(declaration.initializer)
-          ) {
-            const { tag, template } = declaration.initializer;
-
-            const tagIdentifier = tag.getText(sourceFile);
-            // If tag is not part of gqlTags, do nothing
-            if (!importIdentifiers.gqlTags[tagIdentifier]) {
-              return;
-            }
-
-            if (ts.isNoSubstitutionTemplateLiteral(template)) {
-              nodesToRemove.push(node);
-              // If no subscription, use full template
-              const tagTemplate = trimBackTicks(template.getText(sourceFile));
-              graphqlTemplates.push(tagTemplate);
-            } else if (ts.isTemplateExpression(template)) {
-              nodesToRemove.push(node);
-              // If has subscription, ASSUME it's fragment. Replace usages and push template
-              const convertedGraphqlImportLines: string[] = []; // ['#import "./a/b.graphql"','#import "./c/d.graphql"']
-              const substitutionsToReplace: string[] = []; // ["${FRAGMENT_1}","${FRAGMENT_1}"]
-
-              template.templateSpans.forEach((span) => {
-                const identifier = span.expression.getText(sourceFile);
-                if (importIdentifiers.others[identifier]) {
-                  convertedGraphqlImportLines.push(
-                    `#import "${importIdentifiers.others[identifier].moduleName}.graphql"`
-                  );
-                  substitutionsToReplace.push("${" + identifier + "}");
-                }
-              });
-
-              const originalTagTemplate = trimBackTicks(
-                template.getText(sourceFile)
-              );
-              const noSubstitutionTemplate = substitutionsToReplace.reduce(
-                (result, substitution) => result.replace(substitution, ""),
-                originalTagTemplate
-              );
-              graphqlTemplates.push(`${convertedGraphqlImportLines.join("\n")}
-            ${noSubstitutionTemplate}`);
-            }
+          if (declaration.initializer) {
+            handleExpression(node, declaration.initializer);
           }
         });
       }
@@ -151,11 +158,10 @@ export const main = async (
             // If found a node that's at the same position as the a node to remove, assume
             // they are the same and remove them ( by returning undefined )
             if (
-              (ts.isVariableStatement(node) || ts.isImportDeclaration(node)) &&
               nodesToRemove.find(
                 (nodeToRemove) =>
                   nodeToRemove.pos === node.pos && nodeToRemove.end === node.end
-              ) !== undefined
+              )
             ) {
               return undefined;
             }

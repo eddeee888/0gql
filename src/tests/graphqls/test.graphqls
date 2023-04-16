@@ -1,5 +1,8 @@
 type Query {
-  user: User
+  """
+  Some comment about `users`
+  """
+  user: User @deprecated(reason: "Use `users` instead")
 }
 
 type User {

@@ -1,14 +1,12 @@
 import gql from "graphql-tag";
 import { gql as gql2 } from "@not/gql-tag";
 
-export const TEST = gql`
+export default gql`
   query User {
-    user(id: "500") {
+    user(id: "600") {
       id
     }
   }
 `;
 
 export const DO_NOT_REMOVE = true;
-
-export default { alsoDontRemoveMe: true };
